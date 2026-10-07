@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VideoFix</title>
+<style>
+:root{--bg:#0e0e10;--panel:#121214;--card:#1a1a1e;--card2:#1c1c20;--line:#232327;--line2:#2a2a30;--txt:#f4f4f5;--mute:#71717a;--soft:#a1a1aa;--pri:#a8ff53;--ink:#0e0e10}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--txt);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;-webkit-tap-highlight-color:transparent}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+[hidden]{display:none!important}
+#app{width:100%;max-width:540px;min-height:100vh;min-height:100dvh;background:var(--panel);display:flex;flex-direction:column;border-inline:1px solid #1e1e22}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;height:calc(64px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 16px 0;background:rgba(18,18,20,.95);border-bottom:1px solid var(--line)}
+.row{display:flex;align-items:center;gap:12px}
+.round{width:36px;height:36px;border-radius:50%;background:#1e1e22;display:flex;align-items:center;justify-content:center}
+.round.pri{background:var(--pri);color:#000}
+h1{font-size:17px;line-height:1}
+.sub{font-size:11px;color:var(--mute);letter-spacing:.06em;margin-top:2px}
+.chip{font-size:11px;padding:4px 10px;border-radius:99px;background:#1e1e22;color:var(--soft)}
+#home{flex:1;display:flex;flex-direction:column;padding:24px 20px 32px}
+#home h2{font-size:32px;line-height:.98;letter-spacing:-.03em;margin-top:8px}
+#home h2 span{color:var(--mute)}
+.badge{display:inline-block;margin-left:8px;vertical-align:middle;background:var(--pri);color:#000;font-size:11px;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:99px}
+.lead{margin-top:12px;color:var(--soft);max-width:34ch}
+#drop{margin-top:24px;border:1.5px dashed var(--line2);background:#17171a;border-radius:28px;padding:36px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;transition:.15s}
+#drop.over{border-color:var(--pri);background:rgba(168,255,83,.08)}
+.up{width:72px;height:72px;border-radius:20px;background:#1f1f24;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.up svg{width:28px;height:28px}
+.or{display:flex;align-items:center;gap:12px;width:100%;margin:22px 0;color:var(--mute);font-size:11px;letter-spacing:.15em;font-weight:600}
+.or:before,.or:after{content:"";flex:1;height:1px;background:#26262b}
+.btn{width:100%;height:52px;border-radius:99px;background:var(--pri);color:#000;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.6}
+.btn.white{background:#fff;height:48px;font-size:14px;margin-top:12px}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px}
+.feat div{background:#18181b;border:1px solid var(--line);border-radius:18px;padding:12px}
+.feat svg{width:16px;height:16px;color:var(--soft);margin-bottom:8px}
+.feat b{display:block;font-size:12px}
+.feat small,.note{font-size:11px;color:var(--mute)}
+.foot{margin-top:auto;padding-top:24px;text-align:center;font-size:11px;color:#52525b}
+.foot i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:8px}
+#editor{flex:1;display:flex;flex-direction:column}
+#stage{position:relative;aspect-ratio:16/10;background:#08080a;overflow:hidden}
+#vid{width:100%;height:100%;object-fit:contain;transition:transform .3s}
+.tags{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none;gap:8px}
+.tags div{display:flex;gap:8px}
+.tag{padding:4px 10px;border-radius:99px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);font-size:11px}
+.tag.pri{background:var(--pri);color:#000;font-weight:700;border-color:var(--pri)}
+#busy{position:absolute;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:24px}
+#busy>div{width:100%;max-width:320px;background:#1c1c1f;border:1px solid var(--line2);border-radius:20px;padding:20px}
+.bar{height:8px;background:var(--line2);border-radius:99px;overflow:hidden;margin-top:16px}
+.bar i{display:block;height:100%;width:0;background:var(--pri);transition:width .2s}
+.spin{animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(1turn)}}
+.file{height:56px;background:#18181b;border-block:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 16px}
+.file .round{border-radius:10px;width:36px;background:#232328}
+.file div:nth-child(2){flex:1;min-width:0}
+.file b{display:block;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file .round:last-child{width:32px;height:32px;border-radius:50%}
+#result{margin:12px;background:var(--card2);border:1px solid var(--line2);border-radius:22px;padding:16px}
+#result video{width:100%;aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:14px}
+.sp{display:flex;align-items:center;justify-content:space-between}
+.mini{width:28px;height:28px;border-radius:50%;background:#26262b;display:flex;align-items:center;justify-content:center}
+.mini svg{width:16px;height:16px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat small{display:block;font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.stat b{display:block;margin-top:4px;font-size:15px}
+.stat.hl{background:rgba(168,255,83,.08);border-color:var(--line2)}
+#panel{flex:1;padding:16px 16px 12px}
+#panel h3{font-size:15px;display:flex;align-items:center;gap:8px}
+#panel h3 svg{width:16px;height:16px}
+#panel .d{font-size:12px;color:var(--mute);margin-top:4px}
+.grid{display:grid;gap:12px;margin-top:20px}
+.opt{position:relative;text-align:left;background:var(--card2);border:1px solid var(--line2);border-radius:20px;color:var(--soft);transition:.15s}
+.opt.on{border-color:var(--pri);background:#1e1e22;color:var(--txt)}
+.ang{height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:13px}
+.ang.on{background:var(--pri);color:#000}
+.ang i{font-style:normal;font-size:20px;display:block}
+.ang.on:after{content:"✓";position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#000;color:var(--pri);font-size:11px;display:flex;align-items:center;justify-content:center}
+.list .opt{display:flex;align-items:center;gap:16px;padding:16px;border-radius:18px;width:100%}
+.list .ic{width:44px;height:44px;border-radius:12px;background:#25252a;display:flex;align-items:center;justify-content:center;color:var(--mute)}
+.list .on .ic{background:var(--pri);color:#000}
+.list b{display:block;font-size:14px;color:var(--txt)}
+.list small{font-size:12px;color:var(--mute)}
+.box{margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px}
+.pill{padding:4px 12px;border-radius:99px;background:var(--pri);color:#000;font-weight:700;font-size:13px}
+.speeds{display:flex;gap:8px;overflow-x:auto;margin-top:20px;padding-bottom:4px;scrollbar-width:none}
+.speeds button{flex:none;height:36px;padding:0 16px;border-radius:99px;background:#232328;border:1px solid var(--line2);color:var(--soft);font-weight:600;font-size:13px}
+.speeds .on{background:#fff;color:#000;border-color:#fff}
+.scale{display:flex;justify-content:space-between;font-size:10px;color:var(--mute);margin-top:16px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:#2c2c31;border-radius:99px;outline:0;margin-top:22px;display:block}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--pri);border:0}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--pri);border:0}
+.q{padding:16px;overflow:hidden}
+.q b{font-size:14px}
+.q small{display:block;margin-top:4px}
+.q em{display:inline-block;margin-top:12px;font-style:normal;font-size:10px;font-weight:700;padding:4px 8px;border-radius:99px;background:#25252a;color:var(--soft)}
+.q.on em{background:var(--pri);color:#000}
+.q .meter{height:6px;background:#26262b;border-radius:99px;margin-top:12px;overflow:hidden}
+.q .meter i{display:block;height:100%;background:rgba(255,255,255,.7)}
+.q .note{margin-top:4px;color:#52525b}
+.est{display:flex;gap:16px;margin-top:20px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.est>div{flex:1}.est hr{width:1px;border:0;background:var(--line)}
+.green{color:var(--pri)}
+nav{position:sticky;bottom:0;background:rgba(18,18,20,.96);border-top:1px solid var(--line);padding:8px 8px calc(12px + env(safe-area-inset-bottom))}
+.tabs{display:flex;gap:6px}
+.tabs button{flex:1;height:56px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--mute);font-size:10px;font-weight:600;letter-spacing:.03em}
+.tabs .on{background:#1e1e22;color:#fff}
+.tabs .on svg{color:var(--pri)}
+nav .btn{margin-top:12px;height:54px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="row">
+      <button id="back" class="round" hidden aria-label="Back"></button>
+      <div id="logo" class="round pri"></div>
+      <div><h1>VideoFix</h1><p class="sub">ANDROID EDITOR</p></div>
+    </div>
+    <span id="dims" class="chip mono" hidden></span>
+  </header>
+
+  <main id="home">
+    <h2>Fix your video<br><span>in seconds</span><i class="badge">PRO</i></h2>
+    <p class="lead">Rotate, mirror, change speed and shrink — 100% on your device. No upload.</p>
+    <div id="drop">
+      <div class="up" id="upIcon"></div>
+      <p style="font-weight:600;font-size:16px">Drop your video here</p>
+      <p style="font-size:13px;color:var(--mute);margin-top:4px">MP4, MOV, WebM, up to 500 MB</p>
+      <div class="or">OR</div>
+      <input id="file" type="file" accept="video/*" hidden>
+      <button class="btn" id="pick"></button>
+      <p class="mono note" style="margin-top:16px">Everything runs locally • no server</p>
+    </div>
+    <div class="feat" id="feat"></div>
+    <p class="foot"><i></i>Ready to use • works offline</p>
+  </main>
+
+  <section id="editor" hidden>
+    <div id="stage">
+      <video id="vid" playsinline></video>
+      <div class="tags"><div id="tagsL"></div><span class="tag mono" id="tagR"></span></div>
+      <div id="busy" hidden>
+        <div>
+          <div class="row" style="margin-bottom:0">
+            <div class="round pri" id="busyIcon"></div>
+            <div><p style="font-weight:600;font-size:14px">Rendering video…</p><p class="mono" id="busyPct" style="font-size:12px;color:var(--mute)"></p></div>
+          </div>
+          <div class="bar"><i id="busyBar"></i></div>
+          <p class="note" style="text-align:center;margin-top:12px">Keep this tab open — rendering in progress</p>
+        </div>
+      </div>
+    </div>
+    <div class="file">
+      <div class="round" id="fileIcon"></div>
+      <div><b id="fName"></b><p class="mono note" id="fMeta"></p></div>
+      <button class="round" id="restart" aria-label="Restart"></button>
+    </div>
+    <div id="result" hidden>
+      <div class="sp" style="margin-bottom:12px">
+        <h3 class="row" style="font-size:14px;gap:8px"><span class="round pri" id="okIcon" style="width:24px;height:24px"></span>Export complete</h3>
+        <button class="mini" id="closeRes" aria-label="Close"></button>
+      </div>
+      <video id="outVid" controls></video>
+      <div class="two">
+        <div class="stat"><small>Original</small><b class="mono" id="rOld"></b><p class="mono note" id="rOldM"></p></div>
+        <div class="stat hl"><small>New</small><b class="mono" id="rNew"></b><p class="mono note" id="rNewM"></p></div>
+      </div>
+      <button class="btn white" id="dl"></button>
+    </div>
+    <div id="panel"></div>
+    <nav>
+      <div class="tabs" id="tabs"></div>
+      <button class="btn" id="export"></button>
+    </nav>
+  </section>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const P = {
+  film:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18M3 7.5h4M3 12h18M3 16.5h4M17 3v18M17 7.5h4M17 16.5h4"/>',
+  up:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5M12 3v12"/>',
+  down:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/>',
+  rot:'<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
+  fh:'<path d="M8 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h3M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3M12 20v2M12 14v2M12 8v2M12 2v2"/>',
+  fv:'<path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3M4 12H2M10 12H8M16 12h-2M22 12h-2"/>',
+  gauge:'<path d="m12 14 4-4M3.34 19a10 10 0 1 1 17.32 0"/>',
+  zip:'<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4"/>',
+  ok:'<path d="M20 6 9 17l-5-5"/>',
+  x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  back:'<path d="m12 19-7-7 7-7M19 12H5"/>',
+  play:'<path d="m6 3 14 9-14 9z"/>',
+  sync:'<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5"/>'
+};
+const ic = (n, s) => `<svg viewBox="0 0 24 24"${s ? ` style="width:${s}px;height:${s}px"` : ''}>${P[n]}</svg>`;
+const put = (sel, n, s) => { $(sel).innerHTML = ic(n, s); };
+
+const QUAL = [
+  {id:'high',   label:'High',        sub:'1080p • original', res:1080, f:1,    d:'Best quality'},
+  {id:'medium', label:'Medium',      sub:'720p • balanced',  res:720,  f:.62,  d:'Recommended'},
+  {id:'low',    label:'Low',         sub:'480p • smaller',   res:480,  f:.36,  d:'For sharing'},
+  {id:'tiny',   label:'Extra small', sub:'360p • mini',      res:360,  f:.22,  d:'Max compression'}
+];
+const SPEEDS = [.25, .5, .75, 1, 1.25, 1.5, 2];
+const TABS = [['rotate','Rotate','rot'],['mirror','Mirror','fh'],['speed','Speed','gauge'],['compress','Compress','zip']];
+
+const S = {file:null, url:null, w:0, h:0, dur:0, rot:0, flip:'none', speed:1, q:'medium', br:4, tab:'rotate', busy:false, out:null, outUrl:null};
+const vid = $('#vid');
+
+const fmtSize = b => { if (!b) return '0 B'; const u=['B','KB','MB','GB'], i=Math.min(3, Math.floor(Math.log(b)/Math.log(1024))); return +(b/1024**i).toFixed(2)+' '+u[i]; };
+const fmtTime = t => (!t || isNaN(t)) ? '0:00' : Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
+const cur = () => QUAL.find(q => q.id === S.q);
+const even = n => n - (n % 2);
+
+// Output size (before rotation) fitted to the chosen resolution
+function outDims(w, h, res) {
+  if (w >= h) { const H = Math.min(h, res); return [even(Math.round(w * H / h)), even(H)]; }
+  const W = Math.min(w, res); return [even(W), even(Math.round(h * W / w))];
+}
+const estimate = () => S.file ? S.file.size * cur().f * (S.br/4.5) * Math.min(1.2, Math.max(.7, (1/S.speed)*.9 + .1)) : 0;
+
+/* ---------- static UI ---------- */
+put('#logo','film'); put('#back','back'); put('#upIcon','up'); put('#fileIcon','film');
+put('#restart','play',16); put('#closeRes','x'); put('#okIcon','ok',16); put('#busyIcon','sync');
+$('#busyIcon').firstChild.classList.add('spin'); $('#busyIcon').style.color='#000';
+$('#pick').innerHTML = ic('film') + ' Choose video';
+$('#dl').innerHTML = ic('down') + ' Download';
+$('#feat').innerHTML = [['rot','Rotate','0°–270°'],['fh','Mirror','H / V'],['gauge','Speed','0.25x–2x']]
+  .map(f => `<div>${ic(f[0])}<b>${f[1]}</b><small class="mono">${f[2]}</small></div>`).join('');
+$('#tabs').innerHTML = TABS.map(t => `<button data-tab="${t[0]}">${ic(t[2])}<span>${t[1]}</span></button>`).join('');
+
+/* ---------- load / reset ---------- */
+function load(f) {
+  if (!f || !f.type.startsWith('video/')) return;
+  clearOut(); if (S.url) URL.revokeObjectURL(S.url);
+  Object.assign(S, {file:f, url:URL.createObjectURL(f), w:0, h:0, dur:0});
+  vid.src = S.url; vid.playbackRate = S.speed;
+  $('#home').hidden = true; $('#editor').hidden = false;
+  $('#back').hidden = false; $('#logo').hidden = true;
+  $('#fName').textContent = f.name;
+  render();
+}
+vid.onloadedmetadata = () => {
+  Object.assign(S, {w:vid.videoWidth, h:vid.videoHeight, dur:vid.duration});
+  $('#dims').hidden = false; $('#dims').textContent = S.w + '×' + S.h;
+  render();
+};
+function reset() {
+  clearOut(); if (S.url) URL.revokeObjectURL(S.url);
+  Object.assign(S, {file:null, url:null, rot:0, flip:'none', speed:1, q:'medium', br:4, tab:'rotate'});
+  vid.removeAttribute('src'); vid.load(); $('#file').value = '';
+  $('#home').hidden = false; $('#editor').hidden = true;
+  $('#back').hidden = true; $('#logo').hidden = false; $('#dims').hidden = true;
+}
+function clearOut() {
+  if (S.outUrl) URL.revokeObjectURL(S.outUrl);
+  S.out = S.outUrl = null; $('#result').hidden = true; $('#outVid').removeAttribute('src');
+}
+
+/* ---------- rendering ---------- */
+function panel() {
+  const t = S.tab;
+  if (t === 'rotate') return `<h3>${ic('rot')} Rotate video</h3>
+    <p class="d">Pick an angle. It's baked in on export via canvas.</p>
+    <div class="grid" style="grid-template-columns:repeat(4,1fr)">${[0,90,180,270].map(a =>
+      `<button class="opt ang${S.rot===a?' on':''}" data-rot="${a}"><i style="transform:rotate(${a}deg)">↻</i><span class="mono">${a}°</span></button>`).join('')}</div>
+    <div class="box" style="font-size:12px;color:var(--soft)"><b style="color:#e4e4e7">Tip:</b> at 90° or 270° width and height are swapped on export, so the video really becomes portrait/landscape.</div>`;
+  if (t === 'mirror') return `<h3>${ic('fh')} Mirror</h3>
+    <p class="d">For mirrored selfies or creative effects.</p>
+    <div class="grid list">${[['none','None','Keep original','x'],['h','Flip horizontally','Left ↔ right','fh'],['v','Flip vertically','Top ↕ bottom','fv']].map(o =>
+      `<button class="opt${S.flip===o[0]?' on':''}" data-flip="${o[0]}"><span class="ic">${ic(o[3])}</span><span style="flex:1"><b>${o[1]}</b><small>${o[2]}</small></span></button>`).join('')}</div>`;
+  if (t === 'speed') return `<h3>${ic('gauge')} Change speed</h3>
+    <p class="d">Slow down for drama or speed up for a timelapse.</p>
+    <div class="box"><div class="sp"><span style="font-size:13px;font-weight:500">Playback</span><span class="pill mono" id="spV"></span></div>
+      <div class="speeds">${SPEEDS.map(s => `<button class="mono" data-speed="${s}">${s}x</button>`).join('')}</div>
+      <input type="range" id="spR" min="0" max="${SPEEDS.length-1}" step="1">
+      <div class="scale mono"><span>0.25x slo-mo</span><span>1x normal</span><span>2x fast</span></div>
+      <div class="two" style="margin-top:24px">
+        <div class="stat"><small style="text-transform:none">New duration</small><b class="mono" id="spD"></b><p class="note" id="spW"></p></div>
+        <div class="stat"><small style="text-transform:none">Preview</small><b id="spP" style="font-size:13px;font-weight:500"></b></div>
+      </div></div>`;
+  return `<h3>${ic('zip')} Make file smaller</h3>
+    <p class="d">Choose quality and bitrate. Everything is compressed locally.</p>
+    <div class="grid" style="grid-template-columns:1fr 1fr">${QUAL.map(q =>
+      `<button class="opt q${S.q===q.id?' on':''}" data-q="${q.id}"><b>${q.label}</b><small class="mono">${q.sub}</small><em class="mono">${q.d}</em>
+       <div class="meter"><i style="width:${q.f*100}%"></i></div><p class="mono note">${Math.round(q.f*100)}% of original</p></button>`).join('')}</div>
+    <div class="box"><div class="sp"><b style="font-size:13px;font-weight:500">Bitrate</b><span class="mono chip" id="brV"></span></div>
+      <input type="range" id="brR" min="1" max="8" step="0.5">
+      <div class="scale mono"><span>1 Mbps • small</span><span>8 Mbps • sharp</span></div>
+      <div class="est"><div><small class="note" style="text-transform:uppercase;font-weight:600">Estimated size</small><b class="mono" id="eSz" style="display:block;font-size:16px;margin-top:4px"></b><p class="mono" id="eDelta" style="font-size:12px;margin-top:4px"></p></div><hr>
+      <div><small class="note" style="text-transform:uppercase;font-weight:600">Resolution</small><b class="mono" id="eRes" style="display:block;font-size:13px;font-weight:500;margin-top:4px"></b><p class="note" style="margin-top:4px">Rendered via canvas</p></div></div></div>`;
+}
+
+function render() {
+  $('#panel').innerHTML = panel();
+  $('#tabs').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.tab === S.tab));
+  if ($('#spR')) $('#spR').value = SPEEDS.indexOf(S.speed);
+  if ($('#brR')) $('#brR').value = S.br;
+  refresh();
+}
+
+// Cheap updates that don't rebuild the panel (keeps slider dragging smooth)
+function refresh() {
+  const q = cur(), est = estimate(), saved = S.file ? Math.round((1 - est/S.file.size) * 100) : 0;
+  vid.playbackRate = S.speed;
+  let sc = 1;
+  if (S.rot % 180) { const st = $('#stage'); sc = Math.min(st.clientWidth/st.clientHeight, st.clientHeight/st.clientWidth); }
+  vid.style.transform = `rotate(${S.rot}deg) scale(${sc*(S.flip==='h'?-1:1)},${sc*(S.flip==='v'?-1:1)})`;
+  $('#tagsL').innerHTML = `<span class="tag mono">${S.rot}°</span>` +
+    (S.flip !== 'none' ? `<span class="tag mono">${S.flip==='h'?'↔':'↕'} mirrored</span>` : '') +
+    (S.speed !== 1 ? `<span class="tag pri mono">${S.speed}x</span>` : '');
+  $('#tagR').textContent = `${q.label} • ${S.br} Mbps`;
+  $('#fMeta').textContent = `${fmtSize(S.file?.size)} • ${fmtTime(S.dur)} • ${S.w}×${S.h}`;
+  $('#export').innerHTML = S.busy ? ic('sync') + ' Exporting…' : ic('down') + ` Export • ${q.label} • ${S.br} Mbps`;
+  $('#export').firstChild.classList.toggle('spin', S.busy);
+  $('#export').disabled = S.busy;
+
+  if ($('#spV')) {
+    $('#spV').textContent = S.speed + 'x';
+    $('#spD').textContent = fmtTime(S.dur / S.speed);
+    $('#spW').textContent = 'was ' + fmtTime(S.dur);
+    $('#spP').textContent = S.speed < 1 ? 'Slowed down for detail' : S.speed > 1 ? 'Sped up for action' : 'Normal speed';
+    $('#panel').querySelectorAll('[data-speed]').forEach(b => b.classList.toggle('on', +b.dataset.speed === S.speed));
+  }
+  if ($('#brV')) {
+    $('#brV').textContent = S.br.toFixed(1) + ' Mbps';
+    $('#eSz').textContent = est ? fmtSize(est) : '—';
+    $('#eDelta').textContent = saved > 0 ? `−${saved}% smaller` : saved < 0 ? `+${-saved}% larger` : 'same size';
+    $('#eDelta').className = 'mono' + (saved > 0 ? ' green' : '');
+    let r = '—';
+    if (S.w) { let [w, h] = outDims(S.w, S.h, q.res); if (S.rot % 180) [w, h] = [h, w]; r = w + '×' + h; }
+    $('#eRes').textContent = r;
+  }
+}
+
+/* ---------- events ---------- */
+$('#pick').onclick = () => $('#file').click();
+$('#file').onchange = e => load(e.target.files[0]);
+$('#back').onclick = reset;
+$('#restart').onclick = () => { vid.currentTime = 0; vid.play(); };
+$('#closeRes').onclick = clearOut;
+const drop = $('#drop');
+drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = () => drop.classList.remove('over');
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); load(e.dataTransfer.files[0]); };
+$('#tabs').onclick = e => { const b = e.target.closest('[data-tab]'); if (b) { S.tab = b.dataset.tab; render(); } };
+$('#panel').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const d = b.dataset;
+  if (d.rot) S.rot = +d.rot;
+  else if (d.flip) S.flip = d.flip;
+  else if (d.speed) S.speed = +d.speed;
+  else if (d.q) S.q = d.q;
+  else return;
+  render();
+};
+$('#panel').oninput = e => {
+  if (e.target.id === 'spR') S.speed = SPEEDS[+e.target.value];
+  else if (e.target.id === 'brR') S.br = +e.target.value;
+  else return;
+  refresh();
+};
+addEventListener('resize', refresh);
+
+/* ---------- export (canvas + MediaRecorder, all local) ---------- */
+$('#export').onclick = async () => {
+  if (!S.w || S.busy) return;
+  S.busy = true; clearOut(); $('#busy').hidden = false; refresh();
+  let stream;
+  try {
+    const q = cur(), vw = S.w, vh = S.h, swap = S.rot % 180 !== 0;
+    let [W, H] = outDims(vw, vh, q.res); if (swap) [W, H] = [H, W];
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d', {alpha:false}); ctx.imageSmoothingQuality = 'high';
+    stream = cv.captureStream(30);
+    try { (vid.captureStream?.() || vid.mozCaptureStream?.()).getAudioTracks().forEach(t => stream.addTrack(t)); } catch {}
+    let mime = 'video/webm;codecs=vp9';
+    if (!MediaRecorder.isTypeSupported(mime)) mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp8') ? 'video/webm;codecs=vp8' : 'video/webm';
+    const chunks = [], rec = new MediaRecorder(stream, {mimeType:mime, videoBitsPerSecond:Math.round(S.br * 1e6)});
+    rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+    const done = new Promise(r => rec.onstop = () => r(new Blob(chunks, {type:mime})));
+
+    vid.pause(); vid.playbackRate = S.speed;
+    if (vid.currentTime !== 0) await new Promise(r => { vid.addEventListener('seeked', r, {once:true}); vid.currentTime = 0; });
+    rec.start(100); await vid.play().catch(() => {});
+
+    const k = swap ? Math.min(W/vh, H/vw) : Math.min(W/vw, H/vh), dw = vw*k, dh = vh*k;
+    const fx = S.flip === 'h' ? -1 : 1, fy = S.flip === 'v' ? -1 : 1;
+    await new Promise(res => {
+      const tick = () => {
+        if (vid.ended || vid.currentTime >= vid.duration - .05) return res();
+        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+        ctx.save(); ctx.translate(W/2, H/2); ctx.rotate(S.rot * Math.PI/180); ctx.scale(fx, fy);
+        ctx.drawImage(vid, -dw/2, -dh/2, dw, dh); ctx.restore();
+        const p = Math.min(.99, vid.currentTime / vid.duration);
+        $('#busyBar').style.width = p*100 + '%';
+        $('#busyPct').textContent = Math.round(p*100) + '% • ' + fmtTime(S.dur * p);
+        requestAnimationFrame(tick);
+      };
+      tick();
+    });
+    rec.stop(); vid.pause();
+    S.out = await done; S.outUrl = URL.createObjectURL(S.out);
+
+    const delta = Math.round((1 - S.out.size / S.file.size) * 100);
+    $('#outVid').src = S.outUrl;
+    $('#rOld').textContent = fmtSize(S.file.size);
+    $('#rOldM').textContent = `${S.w}×${S.h} • ${fmtTime(S.dur)}`;
+    $('#rNew').textContent = fmtSize(S.out.size);
+    $('#rNewM').textContent = `${delta >= 0 ? '−' : '+'}${Math.abs(delta)}% • ${q.res}p`;
+    $('#result').hidden = false;
+    $('#result').scrollIntoView({behavior:'smooth', block:'nearest'});
+  } catch (err) {
+    console.error(err);
+    alert('Export failed. Try another quality or browser.');
+  } finally {
+    stream?.getTracks().forEach(t => t.stop());
+    S.busy = false; $('#busy').hidden = true; $('#busyBar').style.width = '0'; refresh();
+  }
+};
+$('#dl').onclick = () => {
+  if (!S.out) return;
+  const a = document.createElement('a'), base = S.file.name.replace(/\.[^/.]+$/, '') || 'videofix';
+  a.href = S.outUrl; a.download = `${base}_videofix_${S.q}_${S.rot}deg.webm`; a.click();
+};
+</script>
+</body>
+</html>
