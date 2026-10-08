@@ -13,7 +13,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 [hidden]{display:none!important}
 #app{width:100%;max-width:540px;min-height:100vh;min-height:100dvh;background:var(--panel);display:flex;flex-direction:column;border-inline:1px solid #1e1e22}
-header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;height:calc(64px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 16px 0;background:rgba(18,18,20,.95);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;height:calc(64px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 16px 0;background:rgba(18,18,20,.96);border-bottom:1px solid var(--line)}
 .row{display:flex;align-items:center;gap:12px}
 .round{width:36px;height:36px;border-radius:50%;background:#1e1e22;display:flex;align-items:center;justify-content:center}
 .round.pri{background:var(--pri);color:#000}
@@ -25,7 +25,7 @@ h1{font-size:17px;line-height:1}
 #home h2 span{color:var(--mute)}
 .badge{display:inline-block;margin-left:8px;vertical-align:middle;background:var(--pri);color:#000;font-size:11px;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:99px}
 .lead{margin-top:12px;color:var(--soft);max-width:34ch}
-#drop{margin-top:24px;border:1.5px dashed var(--line2);background:#17171a;border-radius:28px;padding:36px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;transition:.15s}
+#drop{margin-top:24px;border:1.5px dashed var(--line2);background:#17171a;border-radius:28px;padding:36px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;transition:.1s}
 #drop.over{border-color:var(--pri);background:rgba(168,255,83,.08)}
 .up{width:72px;height:72px;border-radius:20px;background:#1f1f24;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;margin-bottom:20px}
 .up svg{width:28px;height:28px}
@@ -108,7 +108,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .green{color:var(--pri)}
 nav{position:sticky;bottom:0;background:rgba(18,18,20,.96);border-top:1px solid var(--line);padding:8px 8px calc(12px + env(safe-area-inset-bottom))}
 .tabs{display:flex;gap:6px}
-.tabs button{flex:1;height:56px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--mute);font-size:10px;font-weight:600;letter-spacing:.03em}
+.tabs button{flex:1;height:56px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--mute);font-size:10px;font-weight:600;letter-spacing:.08em}
 .tabs .on{background:#1e1e22;color:#fff}
 .tabs .on svg{color:var(--pri)}
 nav .btn{margin-top:12px;height:54px}
@@ -192,11 +192,11 @@ const P = {
   fv:'<path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3M4 12H2M10 12H8M16 12h-2M22 12h-2"/>',
   gauge:'<path d="m12 14 4-4M3.34 19a10 10 0 1 1 17.32 0"/>',
   zip:'<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4"/>',
-  ok:'<path d="M20 6 9 17l-5-5"/>',
-  x:'<path d="M18 6 6 18M6 6l12 12"/>',
-  back:'<path d="m12 19-7-7 7-7M19 12H5"/>',
-  play:'<path d="m6 3 14 9-14 9z"/>',
-  sync:'<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5"/>'
+  ok:'<path d=\"M20 6 9 17l-5-5\"/>',
+  x:'<path d=\"M18 6 6 18M6 6l12 12\"/>',
+  back:'<path d=\"m12 19-7-7 7-7M19 12H5\"/>',
+  play:'<path d=\"m6 3 14 9-14 9z\"/>',
+  sync:'<path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5\"/>'
 };
 const ic = (n, s) => `<svg viewBox="0 0 24 24"${s ? ` style="width:${s}px;height:${s}px"` : ''}>${P[n]}</svg>`;
 const put = (sel, n, s) => { $(sel).innerHTML = ic(n, s); };
@@ -218,14 +218,12 @@ const fmtTime = t => (!t || isNaN(t)) ? '0:00' : Math.floor(t/60)+':'+String(Mat
 const cur = () => QUAL.find(q => q.id === S.q);
 const even = n => n - (n % 2);
 
-// Output size (before rotation) fitted to the chosen resolution
 function outDims(w, h, res) {
   if (w >= h) { const H = Math.min(h, res); return [even(Math.round(w * H / h)), even(H)]; }
   const W = Math.min(w, res); return [even(W), even(Math.round(h * W / w))];
 }
 const estimate = () => S.file ? S.file.size * cur().f * (S.br/4.5) * Math.min(1.2, Math.max(.7, (1/S.speed)*.9 + .1)) : 0;
 
-/* ---------- static UI ---------- */
 put('#logo','film'); put('#back','back'); put('#upIcon','up'); put('#fileIcon','film');
 put('#restart','play',16); put('#closeRes','x'); put('#okIcon','ok',16); put('#busyIcon','sync');
 $('#busyIcon').firstChild.classList.add('spin'); $('#busyIcon').style.color='#000';
@@ -235,7 +233,6 @@ $('#feat').innerHTML = [['rot','Rotate','0°–270°'],['fh','Mirror','H / V'],[
   .map(f => `<div>${ic(f[0])}<b>${f[1]}</b><small class="mono">${f[2]}</small></div>`).join('');
 $('#tabs').innerHTML = TABS.map(t => `<button data-tab="${t[0]}">${ic(t[2])}<span>${t[1]}</span></button>`).join('');
 
-/* ---------- load / reset ---------- */
 function load(f) {
   if (!f || !f.type.startsWith('video/')) return;
   clearOut(); if (S.url) URL.revokeObjectURL(S.url);
@@ -263,7 +260,6 @@ function clearOut() {
   S.out = S.outUrl = null; $('#result').hidden = true; $('#outVid').removeAttribute('src');
 }
 
-/* ---------- rendering ---------- */
 function panel() {
   const t = S.tab;
   if (t === 'rotate') return `<h3>${ic('rot')} Rotate video</h3>
@@ -293,8 +289,9 @@ function panel() {
     <div class="box"><div class="sp"><b style="font-size:13px;font-weight:500">Bitrate</b><span class="mono chip" id="brV"></span></div>
       <input type="range" id="brR" min="1" max="8" step="0.5">
       <div class="scale mono"><span>1 Mbps • small</span><span>8 Mbps • sharp</span></div>
-      <div class="est"><div><small class="note" style="text-transform:uppercase;font-weight:600">Estimated size</small><b class="mono" id="eSz" style="display:block;font-size:16px;margin-top:4px"></b><p class="mono" id="eDelta" style="font-size:12px;margin-top:4px"></p></div><hr>
-      <div><small class="note" style="text-transform:uppercase;font-weight:600">Resolution</small><b class="mono" id="eRes" style="display:block;font-size:13px;font-weight:500;margin-top:4px"></b><p class="note" style="margin-top:4px">Rendered via canvas</p></div></div></div>`;
+      <div class="est"><div><small class="note" style="text-transform:uppercase;font-weight:600">Estimated size</small><b class="mono" id="eSz" style="display:block;font-size:16px;margin-top:4px"></b></div>
+      <hr><div><small class="note" style="text-transform:uppercase;font-weight:600">Resolution</small><b class="mono" id="eRes" style="display:block;font-size:13px;font-weight:500;margin-top:4px"></b></div></div>
+      <div class="est" style="margin-top:12px"><div><small class="note" style="text-transform:uppercase;font-weight:600">Difference</small><b class="mono" id="eDelta" style="display:block;font-size:14px;margin-top:4px"></b></div></div></div>`;
 }
 
 function render() {
@@ -305,7 +302,6 @@ function render() {
   refresh();
 }
 
-// Cheap updates that don't rebuild the panel (keeps slider dragging smooth)
 function refresh() {
   const q = cur(), est = estimate(), saved = S.file ? Math.round((1 - est/S.file.size) * 100) : 0;
   vid.playbackRate = S.speed;
@@ -339,7 +335,6 @@ function refresh() {
   }
 }
 
-/* ---------- events ---------- */
 $('#pick').onclick = () => $('#file').click();
 $('#file').onchange = e => load(e.target.files[0]);
 $('#back').onclick = reset;
@@ -368,45 +363,107 @@ $('#panel').oninput = e => {
 };
 addEventListener('resize', refresh);
 
-/* ---------- export (canvas + MediaRecorder, all local) ---------- */
+function pickMime() {
+  if (typeof MediaRecorder === 'undefined') return '';
+  const list = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4;codecs=avc1.42E01E', 'video/mp4'];
+  return list.find(t => MediaRecorder.isTypeSupported(t)) || '';
+}
+
 $('#export').onclick = async () => {
   if (!S.w || S.busy) return;
-  S.busy = true; clearOut(); $('#busy').hidden = false; refresh();
-  let stream;
+
+  const mime = pickMime();
+  if (!mime) {
+    alert('Your browser does not support video export.');
+    return;
+  }
+
+  S.busy = true;
+  clearOut();
+  $('#busy').hidden = false;
+  refresh();
+
+  let stream = null;
   try {
-    const q = cur(), vw = S.w, vh = S.h, swap = S.rot % 180 !== 0;
-    let [W, H] = outDims(vw, vh, q.res); if (swap) [W, H] = [H, W];
-    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-    const ctx = cv.getContext('2d', {alpha:false}); ctx.imageSmoothingQuality = 'high';
-    stream = cv.captureStream(30);
-    try { (vid.captureStream?.() || vid.mozCaptureStream?.()).getAudioTracks().forEach(t => stream.addTrack(t)); } catch {}
-    let mime = 'video/webm;codecs=vp9';
-    if (!MediaRecorder.isTypeSupported(mime)) mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp8') ? 'video/webm;codecs=vp8' : 'video/webm';
-    const chunks = [], rec = new MediaRecorder(stream, {mimeType:mime, videoBitsPerSecond:Math.round(S.br * 1e6)});
-    rec.ondataavailable = e => e.data.size && chunks.push(e.data);
-    const done = new Promise(r => rec.onstop = () => r(new Blob(chunks, {type:mime})));
+    const q = cur();
+    const swap = S.rot % 180 !== 0;
+    let [W, H] = outDims(S.w, S.h, q.res);
+    if (swap) [W, H] = [H, W];
 
-    vid.pause(); vid.playbackRate = S.speed;
-    if (vid.currentTime !== 0) await new Promise(r => { vid.addEventListener('seeked', r, {once:true}); vid.currentTime = 0; });
-    rec.start(100); await vid.play().catch(() => {});
+    const cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d', {alpha:false});
+    if (!ctx) throw new Error('Canvas rendering is not available on this device.');
 
-    const k = swap ? Math.min(W/vh, H/vw) : Math.min(W/vw, H/vh), dw = vw*k, dh = vh*k;
-    const fx = S.flip === 'h' ? -1 : 1, fy = S.flip === 'v' ? -1 : 1;
-    await new Promise(res => {
-      const tick = () => {
-        if (vid.ended || vid.currentTime >= vid.duration - .05) return res();
-        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-        ctx.save(); ctx.translate(W/2, H/2); ctx.rotate(S.rot * Math.PI/180); ctx.scale(fx, fy);
-        ctx.drawImage(vid, -dw/2, -dh/2, dw, dh); ctx.restore();
-        const p = Math.min(.99, vid.currentTime / vid.duration);
-        $('#busyBar').style.width = p*100 + '%';
-        $('#busyPct').textContent = Math.round(p*100) + '% • ' + fmtTime(S.dur * p);
-        requestAnimationFrame(tick);
-      };
-      tick();
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    stream = cv.captureStream ? cv.captureStream(30) : null;
+    if (!stream) throw new Error('Canvas capture is not supported on this device.');
+
+    try {
+      const astream = (vid.captureStream && vid.captureStream()) || (vid.mozCaptureStream && vid.mozCaptureStream());
+      if (astream) astream.getAudioTracks().forEach(t => stream.addTrack(t));
+    } catch {}
+
+    const chunks = [];
+    const rec = new MediaRecorder(stream, {
+      mimeType: mime,
+      videoBitsPerSecond: Math.round(S.br * 1e6)
     });
-    rec.stop(); vid.pause();
-    S.out = await done; S.outUrl = URL.createObjectURL(S.out);
+
+    rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+    const done = new Promise((res, rej) => {
+      rec.onstop = () => res(new Blob(chunks, {type:mime}));
+      rec.onerror = e => rej(e.error || new Error('Recording failed.'));
+    });
+
+    vid.pause();
+    vid.muted = true;
+    vid.playbackRate = S.speed;
+    vid.currentTime = 0;
+
+    await new Promise((resolve) => {
+      const doneSeek = () => { vid.removeEventListener('seeked', doneSeek); resolve(); };
+      vid.addEventListener('seeked', doneSeek, {once:true});
+      vid.currentTime = 0;
+    });
+
+    rec.start(200);
+
+    const draw = () => {
+      const k = swap ? Math.min(W / S.h, H / S.w) : Math.min(W / S.w, H / S.h);
+      const dw = S.w * k;
+      const dh = S.h * k;
+      const fx = S.flip === 'h' ? -1 : 1;
+      const fy = S.flip === 'v' ? -1 : 1;
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+      ctx.save();
+      ctx.translate(W/2, H/2);
+      ctx.rotate(S.rot * Math.PI / 180);
+      ctx.scale(fx, fy);
+      ctx.drawImage(vid, -dw/2, -dh/2, dw, dh);
+      ctx.restore();
+
+      const p = Math.min(0.99, vid.currentTime / vid.duration);
+      $('#busyBar').style.width = (p * 100) + '%';
+      $('#busyPct').textContent = Math.round(p * 100) + '% • ' + fmtTime(S.dur * p);
+
+      if (vid.ended || vid.currentTime >= vid.duration - 0.05) {
+        rec.stop();
+        return;
+      }
+
+      requestAnimationFrame(draw);
+    };
+
+    await vid.play().catch(() => {});
+    requestAnimationFrame(draw);
+
+    S.out = await done;
+    S.outUrl = URL.createObjectURL(S.out);
 
     const delta = Math.round((1 - S.out.size / S.file.size) * 100);
     $('#outVid').src = S.outUrl;
@@ -418,12 +475,13 @@ $('#export').onclick = async () => {
     $('#result').scrollIntoView({behavior:'smooth', block:'nearest'});
   } catch (err) {
     console.error(err);
-    alert('Export failed. Try another quality or browser.');
+    alert('Export failed. Try a smaller file, lower quality, or another browser.');
   } finally {
     stream?.getTracks().forEach(t => t.stop());
     S.busy = false; $('#busy').hidden = true; $('#busyBar').style.width = '0'; refresh();
   }
 };
+
 $('#dl').onclick = () => {
   if (!S.out) return;
   const a = document.createElement('a'), base = S.file.name.replace(/\.[^/.]+$/, '') || 'videofix';
